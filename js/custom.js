@@ -18,7 +18,7 @@
 	const maxZoom = 19
 
         
-    function init() {	
+    var init = function() {	
 		'use strict'
 	    treeMap = L.map('mapid').setView(center, 13);
         // use osm api. a bit slow .... but we don't have an api key yet
