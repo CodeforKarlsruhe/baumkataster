@@ -9,7 +9,7 @@
 	
 	const center = [49.014, 8.404]
 	
-	var treeMap = L.map('mapid').setView(center, 13);
+	var treeMap
 	var dsPopups = [] // district popups
 	
 	var totalPop = 0
@@ -18,15 +18,15 @@
 	const maxZoom = 19
 
         
-    // use osm api. a bit slow .... but we don't have an api key yet
-    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-	var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-	//var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
-	var osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
-	osm.addTo(treeMap);
-
     function init() {	
 		'use strict'
+	    treeMap = L.map('mapid').setView(center, 13);
+        // use osm api. a bit slow .... but we don't have an api key yet
+        let osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	    let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+	    //var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
+	    let osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
+	    osm.addTo(treeMap);
 	    let l = document.getElementById("loading")
 	    l.style.display = "block"
 	    getTrees()
