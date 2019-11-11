@@ -1,5 +1,4 @@
-    // schloss:  8.404  49.014
-		'use strict'
+    // ka baumkataster 
     
 	const city = "Karlsruhe"
 	
@@ -18,7 +17,8 @@
 	const maxZoom = 19
 
         
-    var init = function() {	
+    //var init = function() {	
+    function init() {	
 		'use strict'
 	    treeMap = L.map('mapid').setView(center, 13);
         // use osm api. a bit slow .... but we don't have an api key yet
@@ -57,7 +57,7 @@
 		'use strict'
 		console.log("Fetching trees")
 		//fetch("http://127.0.0.1/cluster/treesExample.json")
-		fetch("http://127.0.0.1/cluster/trees.json")
+		fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/trees.json")
 		  .then(function(response) {
 			return response.json();
 		  })
@@ -148,7 +148,7 @@
 	function getDistricts() {
 		'use strict'
 		console.log("Fetching districts")
-		fetch("http://127.0.0.1/cluster/districtsLeaf.json")
+		fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/districtsLeaf.json")
 			.then(function(response) {
 			return response.json();
 			})
