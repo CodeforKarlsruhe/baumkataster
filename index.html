@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	
+	<title>Trees</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="leaflet.css">
+    <script src="leaflet.js" ></script>
+
+    <link rel="stylesheet" type="text/css" href="/cluster/MarkerCluster.css">
+    <link rel="stylesheet" type="text/css" href="/cluster/MarkerCluster.Default.css">
+    <script src="/cluster/leaflet.markercluster.js" ></script>
+
+	<style>
+		#topInfo {
+			background: white;
+			position: fixed;
+			top: 0;
+			left: 4em;
+			display: block;
+			font-size:1em;
+			line-height:.2em;
+			z-index:10001;
+		}
+		#sel {
+			background: white;
+			position: fixed;
+			top: 2.5em;
+			left: 4em;
+			display: block;
+			font-size:1em;
+			z-index:10000;
+		}
+
+		#loading {
+			position: fixed;
+			top: 10%;
+			left: 10%;
+			display: block;
+			font-size:3em;
+			z-index:10000;
+		}
+
+		.fading {
+			opacity: 1;
+			-webkit-animation: fadeinout; /* 2s linear infinite; */
+			animation: fadeinout 2s linear infinite;
+		}
+		
+		@-webkit-keyframes fadeinout {
+		  0%,100% { opacity: 0; }
+		  50% { opacity: 1; }
+		}
+
+		@keyframes fadeinout {
+			0%,100% { opacity: 0 }
+			50% { opacity: 1 }
+		}
+	</style>
+	
+</head>
+<body>
+
+<div id="topInfo">
+</div>
+
+<div id="sel" class="sel">
+<p style="margin-bottom:0">Stadtteil wählen:</p>
+<select id="select" onchange="distSel()">
+</select>
+</div>
+
+<p id="loading" class="fading">... Loading trees ...</p>
+
+<div id="mapid" style="width: 1200px; height: 600px; position: relative;" class="leaflet-container leaflet-fade-anim leaflet-grab leaflet-touch-drag" tabindex="0">
+<div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(0px, 0px, 0px);">
+</div>
+</div>
+
+
+<script>
+
+    // schloss:  8.404  49.014
+		'use strict'
+    
+	const city = "Karlsruhe"
+	
+	var dsList = []
+	var dsTrees = []
+	var currentMarkers = null
+	
+	const center = [49.014, 8.404]
+	
+	var treeMap = L.map('mapid').setView(center, 13);
+	var dsPopups = [] // district popups
+	
+	var totalPop = 0
+	var totalTrees = 0
+	var totalArea = 0
+	const maxZoom = 19
+
+        
+    // use osm api. a bit slow .... but we don't have an api key yet
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+	//var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
+	var osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
+	osm.addTo(treeMap);
+	
+	let l = document.getElementById("loading")
+	l.style.display = "block"
+	getTrees()
+	// getDistricts()
+
+	/*
+	let l = document.getElementById("loading")
+	l.style.display = "block"
+	getTrees()
+	*/
+
+	function updateProgressBar(processed, total, elapsed, layersArray) {
+		'use strict'
+		let l = document.getElementById("loading")
+		l.innerHTML = "Processes " + processed + " of " + total
+		if (processed === total) {
+			l.style.display = "none"
+			console.log(total + " trees added")
+		}
+	}
+
+	// Note: the reference examples uses 50k items provided in 2 files
+	// of 25k items each. Each file uses a separate markerList.
+	// this might be faster ....
+	// tested, doesn't seem to be realy faster. 
+	// loading slows down from 60k items
+	// might need to load by city district, e.g.
+	// from 
+	// https://github.com/CodeforKarlsruhe/btw2017/blob/master/daten/karlsruhe/umrisse/ka_stadtteile.geojson
+	
+	
+	function getTrees() {
+		'use strict'
+		console.log("Fetching trees")
+		//fetch("http://127.0.0.1/cluster/treesExample.json")
+		fetch("http://127.0.0.1/cluster/trees.json")
+		  .then(function(response) {
+			return response.json();
+		  })
+		  .then(function(trees) {
+			console.log("Fetch completed");
+			console.log("Items: ",trees.length)
+			let i
+			for (i in trees){
+				let t = trees[i]
+				let di = t[4] // district index
+				if (undefined == dsTrees[di]) dsTrees[di] = [] // create array if not exists
+				dsTrees[di].push(t)
+			}
+
+		  })
+		  .then (function() {
+			dsTrees.forEach(function(d){
+				totalTrees += d.length
+				console.log(d[0][5],": ",d.length)
+			})
+			// hide 
+			let l = document.getElementById("loading")
+			l.style.display = "none"
+			// get the districts
+			 getDistricts()
+			// could add a default view
+			//addTrees(treeMap,1)
+		  })
+		  .catch(function(err) {
+			// Error: response error, request timeout or runtime error
+			console.log('fetch error! ', err);
+		  })
+	}
+
+	function addTrees(id) {
+		'use strict'
+
+		let l = document.getElementById("loading")
+		l.style.display = "block"
+
+		//var markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar });
+		if (null == currentMarkers)
+			currentMarkers = L.markerClusterGroup({ disableClusteringAtZoom : maxZoom -1, spiderfyOnMaxZoom: false, chunkedLoading: true, chunkProgress: updateProgressBar });
+		 
+		let markerList = [] // new Array(trees.length)
+		// using a preallocated array doesn't help as most time goes into addint the marker
+		// above 50k€ items we have to be patient ... 
+		
+		// using a markerList seems to be must faster than calling
+		// addLay for every items ...
+		let ii
+		for (ii in dsTrees){
+			if (ii == 0) continue // skip 0 
+
+			if (id && (id != ii)) continue // skip others
+			
+			let trees = dsTrees[ii] // get the selected trees. id 0 is  special!
+			
+			let i
+			for (i in trees){
+				let t = trees[i]
+			
+				// we can use markers or circles ...
+				//let marker = L.marker([t[0],t[1]],{"title":t[2]})
+				let marker = L.circle([t[0],t[1]], {
+				  color: "green",
+				  fillColor: "#0f0",
+				  fillOpacity: 0.5,
+				  radius: 3.0
+				})
+				marker.bindPopup(t[2] + "<br>" + t[3] + "<br>" +
+				t[1] + "<br>" + t[0]);
+				markerList.push(marker);
+			}
+
+		}
+		currentMarkers.addLayers(markerList)		
+
+		treeMap.addLayer(currentMarkers);
+		// finally center map
+		if (0 == id){
+			treeMap.panTo(new L.LatLng(center[0],center[1]))
+		} else {
+			treeMap.panTo(new L.LatLng(dsTrees[id][0][0],dsTrees[id][0][1]))
+		}
+	}
+
+	function getDistricts() {
+		'use strict'
+		console.log("Fetching districts")
+		fetch("http://127.0.0.1/cluster/districtsLeaf.json")
+			.then(function(response) {
+			return response.json();
+			})
+			.then(function(districts) {
+				console.log("Fetch completed");
+				console.log("Items: ",districts.length)
+
+				districts.forEach(function(d) {
+					var polygon = L.polygon(d.coordinates, {
+						weight: 2,
+						fillOpacity: 0.2,
+						fillColor: "white",
+						color: 'black',
+						dashArray: '3'
+					})
+					polygon.bindPopup(d.name + "<br>" + (d.area/1000000.0).toFixed(2) + 
+						"km²<br>" + d.population + " Bewohner<br>" +
+						dsTrees[d.id].length + " Bäume<br>")
+					polygon.addTo(treeMap);
+					dsPopups.push(polygon) // store polygon so we can open the popup after selection
+					dsList.push({"id":d.id,"name":d.name,"area":d.area,"bounds":d.bounds})
+					totalPop += parseInt(d.population)
+					totalArea += parseInt(d.area)
+				})
+			})
+			.then(function() {
+				//console.log(dsList)
+				let s = document.getElementById("select")
+				let option = document.createElement("option");
+				s.add(option); 
+				for (let i in dsList){
+					option = document.createElement("option");
+					option.text = dsList[i].name
+					s.add(option); 
+				}
+				option = document.createElement("option");
+				option.text = "Alle"
+				s.add(option); 
+				// update info
+				let i = document.getElementById("topInfo")
+				i.innerHTML = "<h2>" + city + " " + totalPop + " Einwohner " + 
+				(totalArea/1000000.0).toFixed(2) + "km² Fläche " + totalTrees + " Bäume</h2>"
+			})
+		  .catch(function(err) {
+			// Error: response error, request timeout or runtime error
+			console.log('fetch error! ', err);
+		  })
+	}
+
+	async function distSel() {
+		'use strict'
+		let s = document.getElementById("select")
+		let i = s.selectedIndex
+		// remove old
+		if (null != currentMarkers) {
+			currentMarkers.clearLayers()
+		}
+		if (0 == i) return
+		let l = document.getElementById("loading")
+		l.style.display = "block"
+		if (dsList.length + 1 != i) {
+			let n = dsList[i-1].name
+			let ii = dsList[i-1].id
+			await Sleep(100)
+			console.log("Selected: ",i,": ",n)
+			addTrees(ii)
+			dsPopups[i-1].openPopup()
+		} else {
+			l.innerHTML = "Loading all trees. Please be patient ..."
+			await Sleep(100)
+			console.log("all")
+			addTrees(0)
+		}
+	}
+
+	// helper function for delay
+	function Sleep(milliseconds) {
+		'use strict'
+	  return new Promise(resolve => setTimeout(resolve, milliseconds));
+	}
+
+
+	/*
+	// from https://stackoverflow.com/questions/31790344/determine-if-a-point-reside-inside-a-leaflet-polygon
+	function isMarkerInsidePolygon(marker, poly) {
+		var polyPoints = poly.getLatLngs();       
+		var x = marker.getLatLng().lat, y = marker.getLatLng().lng;
+
+		var inside = false;
+		for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+			var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+			var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+			var intersect = ((yi > y) != (yj > y))
+				&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+			if (intersect) inside = !inside;
+		}
+
+		return inside;
+	};
+
+	// also check https://github.com/mapbox/leaflet-pip
+	// and https://stackoverflow.com/questions/41138056/check-if-a-polygon-point-is-inside-another-in-leaflet/41138512#41138512
+	
+	// probably its better to label the trees with the district in the file, so we can 
+	// directly put them into the proper array
+	
+	// code to create polygons from geojson
+	// from https://gis.stackexchange.com/questions/234460/how-to-convert-geojson-to-polygon-in-leaflet
+	*/
+	
+
+</script>
+
+
+
+
+
+</body></html>
