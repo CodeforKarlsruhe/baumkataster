@@ -1,0 +1,45 @@
+#topInfo {
+	background: white;
+	position: fixed;
+	top: 0;
+	left: 4em;
+	display: block;
+	font-size:1em;
+	line-height:.2em;
+	z-index:10001;
+}
+#sel {
+	background: white;
+	position: fixed;
+	top: 2.5em;
+	left: 4em;
+	display: block;
+	font-size:1em;
+	z-index:10000;
+}
+
+#loading {
+	position: fixed;
+	top: 10%;
+	left: 10%;
+	display: block;
+	font-size:3em;
+	z-index:10000;
+}
+
+.fading {
+	opacity: 1;
+	-webkit-animation: fadeinout; /* 2s linear infinite; */
+	animation: fadeinout 2s linear infinite;
+}
+
+@-webkit-keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeinout {
+	0%,100% { opacity: 0 }
+	50% { opacity: 1 }
+}
+
