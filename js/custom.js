@@ -20,6 +20,11 @@
     //var init = function() {	
     function init() {	
 		'use strict'
+		let w = window.innerWidth;
+		let h = window.innerHeight;
+		let m = document.getElementById("mapid")
+		m.style.width = Math.floor(w * .95) + "px"
+		m.style.height = Math.floor(h * .95) + "px"
 	    treeMap = L.map('mapid').setView(center, 13);
         // use osm api. a bit slow .... but we don't have an api key yet
         let osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
