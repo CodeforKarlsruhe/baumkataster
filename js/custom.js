@@ -126,16 +126,23 @@
 			for (i in trees){
 				let t = trees[i]
 			
+				// check if we have an info link
+				let infoLink=""
+				if (t[6] > "") {
+					infoLink = '<br><a href="' + t[6] + '" target="_blank">Info</a>'
+				}			
 				// we can use markers or circles ...
 				//let marker = L.marker([t[0],t[1]],{"title":t[2]})
 				let marker = L.circle([t[0],t[1]], {
 				  color: "green",
-				  fillColor: "#0f0",
+				  fillColor: (infoLink > "") ? "#0f0" : "#888",
 				  fillOpacity: 0.5,
 				  radius: 3.0
 				})
-				marker.bindPopup(t[2] + "<br>" + t[3] + "<br>" +
-				t[1] + "<br>" + t[0]);
+				let info = '<div class="info">'
+				info += t[2] + "<br>" + t[3] + "<br>" + t[1] + "<br>" + t[0]
+				info += infoLink + "</div>"
+				marker.bindPopup(info);
 				markerList.push(marker);
 			}
 

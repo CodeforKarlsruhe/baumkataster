@@ -34,6 +34,12 @@
 	z-index:10000;
 }
 
+/* popup info */
+.info {
+		/* this is inside the popup-content-wrapper **
+		** so styling is limited */
+}
+
 .fading {
 	opacity: 1;
 	-webkit-animation: fadeinout; /* 2s linear infinite; */
