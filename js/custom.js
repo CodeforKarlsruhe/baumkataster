@@ -62,7 +62,8 @@
 		'use strict'
 		console.log("Fetching trees")
 		//fetch("http://127.0.0.1/cluster/treesExample.json")
-		fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/trees.json")
+		//fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/trees.json")
+		fetch("/baumkataster/assets/trees.json")
 		  .then(function(response) {
 			return response.json();
 		  })
@@ -153,7 +154,8 @@
 	function getDistricts() {
 		'use strict'
 		console.log("Fetching districts")
-		fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/districtsLeaf.json")
+		//fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/districtsLeaf.json")
+		fetch("/baumkataster/assets/districtsLeaf.json")
 			.then(function(response) {
 			return response.json();
 			})
