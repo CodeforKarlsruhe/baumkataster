@@ -27,7 +27,7 @@
 		m.style.height = Math.floor(h * .95) + "px"
 	    treeMap = L.map('mapid').setView(center, 13);
         // use osm api. a bit slow .... but we don't have an api key yet
-        let osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 	    let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
 	    //var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
 	    let osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
@@ -61,8 +61,6 @@
 	function getTrees() {
 		'use strict'
 		console.log("Fetching trees")
-		//fetch("http://127.0.0.1/cluster/treesExample.json")
-		//fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/trees.json")
 		fetch("/baumkataster/assets/trees.json")
 		  .then(function(response) {
 			return response.json();
@@ -161,7 +159,6 @@
 	function getDistricts() {
 		'use strict'
 		console.log("Fetching districts")
-		//fetch("https://codeforkarlsruhe.github.io/baumkataster/assets/districtsLeaf.json")
 		fetch("/baumkataster/assets/districtsLeaf.json")
 			.then(function(response) {
 			return response.json();

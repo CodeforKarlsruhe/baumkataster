@@ -39,6 +39,15 @@
 		/* this is inside the popup-content-wrapper **
 		** so styling is limited */
 }
+/* district info
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup
+
+inside:
+.leaflet-popup-content-wrapper, .leaflet-popup-tip
+
+difficult to move due to transform3d statement required to have it placed next to the item ...
+if unset, we can put windows at fixed  position
+*/
 
 .fading {
 	opacity: 1;
