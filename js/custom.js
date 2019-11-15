@@ -61,7 +61,7 @@
 	function getTrees() {
 		'use strict'
 		console.log("Fetching trees")
-		fetch("/baumkataster/assets/trees.json")
+		fetch("/baumkataster/assets/trees.json",{cache: "no-cache"})
 		  .then(function(response) {
 			return response.json();
 		  })
@@ -71,9 +71,9 @@
 			let i
 			for (i in trees){
 				let t = trees[i]
-				let di = t[4] // district index
+				let di = parseInt(t[4]) // district index
 				if (undefined == dsTrees[di]) dsTrees[di] = [] // create array if not exists
-				dsTrees[di].push(t)
+				    dsTrees[di].push(t)
 			}
 
 		  })
@@ -152,14 +152,15 @@
 		if (0 == id){
 			treeMap.panTo(new L.LatLng(center[0],center[1]))
 		} else {
-			treeMap.panTo(new L.LatLng(dsTrees[id][0][0],dsTrees[id][0][1]))
+            console.log("Centering to id",id,dsList[id].center)
+			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
 		}
 	}
 
 	function getDistricts() {
 		'use strict'
 		console.log("Fetching districts")
-		fetch("/baumkataster/assets/districtsLeaf.json")
+		fetch("/baumkataster/assets/districtsLeaf.json",{cache: "no-cache"})
 			.then(function(response) {
 			return response.json();
 			})
@@ -180,7 +181,7 @@
 						dsTrees[d.id].length + " Bäume<br>")
 					polygon.addTo(treeMap);
 					dsPopups.push(polygon) // store polygon so we can open the popup after selection
-				    dsList.push({"id":d.id,"name":d.name,"area":d.area,"bounds":d.bounds})
+				    dsList.push({"id":d.id,"name":d.name,"area":d.area,"bounds":d.bounds,"center":d.center})
 					totalPop += parseInt(d.population)
 					totalArea += parseInt(d.area)
 				})
