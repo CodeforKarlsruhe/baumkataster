@@ -16,6 +16,8 @@
 	var totalArea = 0
 	const maxZoom = 19
 
+    var chart = null // need the variable to update data
+
       
     //var init = function() {	
     function init() {	
@@ -171,7 +173,16 @@
             console.log("Centering to id",id,dsList[id].center)
 			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
             document.getElementById("chart").style.display = "block"
-            chart = mkChart(null)
+            let chartData = {}
+            chartData.p = (dsList[id-1].pop / dsList[id-1].means.pop).toFixed(2)
+            chartData.t = (dsList[id-1].trees / dsList[id-1].means.trees).toFixed(2)
+            chartData.a = (dsList[id-1].area / dsList[id-1].means.area).toFixed(2)
+            chartData.h = dsList[id-1].name
+            console.log(id,chartData)
+            if (null == chart) 
+                chart = mkChart(chartData)
+            else
+                updateChart(chartData)
 
 		}
 	}
@@ -200,7 +211,12 @@
 						dsTrees[d.id].length + " Bäume<br>")
 					polygon.addTo(treeMap);
 					dsPopups.push(polygon) // store polygon so we can open the popup after selection
-				    dsList.push({"id":d.id,"name":d.name,"area":d.area,"bounds":d.bounds,"center":d.center})
+                    //console.log("Add ds ",d.id,", trees: ",dsTrees[d.id].length)
+                    //console.log("Add ds ",d.id,", means: ",d.means)
+				    dsList.push({"id":d.id,"name":d.name,"area":d.area/1000000,
+                        "pop":d.population,
+                        "bounds":d.bounds,"center":d.center,
+                        "means":d.means,"trees":dsTrees[d.id].length})
 					totalPop += parseInt(d.population)
 					totalArea += parseInt(d.area)
 				})
@@ -265,34 +281,49 @@
 	}
 
 
+function updateChart(data)
+{
+    console.log("Update:",data)
+    chart.load({
+        columns:[
+              ['x', 'Einwohner',"Bäume","Fläche"],
+              ['value', data.p, data.t,data.a]
+        ]
+    });
+    chart.config.title_text = data.h // "Kennzahlen des Stdadtteils"
+}
+
 // create a chart for the district
 function mkChart(data){
+    console.log("init:",data)
     let chart = c3.generate({
         bindto: '#chart',
         size: {
             height: 150
         },
         bar: {
-            width: 40
+            width: 20
         },
         padding: {
             left: 60
         },
+        /*
         color: {
-            pattern: ['#FABF62', '#ACB6DD']
+            pattern: ['#0f0', '#f00',"#00f"]
         },
+        */
         data: {
             x: 'x',
             columns:
                 [
-              ['x', 'Category1', 'Category2'],
-              ['value', 300, 400]
+              ['x', 'Einwohner',"Bäume","Fläche"],
+              ['value', data.p, data.t,data.a]
               ],
 
             type: 'bar',
            
             color: function(inColor, data) {
-                var colors = ['#FABF62', '#ACB6DD'];
+                var colors = ['#00f', '#0f0',"#088"];
                 if(data.index !== undefined) {
                     return colors[data.index];
                 }
@@ -304,14 +335,58 @@ function mkChart(data){
             rotated: true,
             x: {
                 type: 'category'
+            },
+            y: {
+                label: {
+                    text: "Daten relativ zum Mittelwert",
+                    position:'outer-center'
+                }
             }
         },
         tooltip: {
-            grouped: false
+            grouped: false,
+            /*
+            format: {
+                title: function (d) { return 'Data ' + d; },
+                value: function (value, ratio, id) {
+                    console.log("Tooltip fomtat:",data)
+                    var format = id === 'data1' ? d3.format(',') : d3.format('$');
+                    return format(value);
+                }
+                   //value: d3.format(',') // apply this format to both y and y2
+            },
+            */
+            contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
+            //console.log("Tooltip content",d)
+            /* input is array of data objects like so:
+                id: "value",index: 0,name: "value",value: 1.81,x: 0
+                index 0 is top on bar chart
+            */
+            // see https://stackoverflow.com/questions/24754239/how-to-change-tooltip-content-in-c3js
+            let c = this // get chart
+            //console.log(c.config)
+            //console.log(defaultTitleFormat,defaultValueFormat)
+            // we have only a single value 
+            let title = defaultTitleFormat(d[0].x)
+            let text = "<table class='" + c.CLASS.tooltip + "'><tr><th colspan='2'>" + title + "</th></tr>"
+            name = d[0].name
+            let value = defaultValueFormat(d[0].value, d[0].ratio, d[0].id, d[0].index);
+            let bgcolor = color(d[0].id)
+            text += "<tr class='" + c.CLASS.tooltipName + "-" + d[0].id + "'>";
+            text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>" + name + "</td>";
+            text += "<td class='value'>" + value + "</td>";
+            text += "</tr>";
+            text + "</table>"
+            return text
+          }
         },
         legend: {
             show: false
+        },
+        title: {
+            text: "Kennzahlen des Stdadtteils"
         }
+  
     });
     return chart
 }	
