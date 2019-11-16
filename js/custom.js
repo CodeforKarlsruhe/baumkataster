@@ -17,6 +17,7 @@
 	const maxZoom = 19
 
     var chart = null // need the variable to update data
+	var means = null
 
       
     //var init = function() {	
@@ -174,11 +175,11 @@
 			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
             document.getElementById("chart").style.display = "block"
             let chartData = {}
-            chartData.p = (dsList[id-1].pop / dsList[id-1].means.pop).toFixed(2)
-            chartData.t = (dsList[id-1].trees / dsList[id-1].means.trees).toFixed(2)
-            chartData.a = (dsList[id-1].area / dsList[id-1].means.area).toFixed(2)
+            chartData.p = (dsList[id-1].pop / means.pop).toFixed(2)
+            chartData.t = (dsList[id-1].trees / means.trees).toFixed(2)
+            chartData.a = (dsList[id-1].area / means.area).toFixed(2)
             chartData.h = dsList[id-1].name
-            console.log(id,chartData)
+            //console.log(id,chartData)
             if (null == chart) 
                 chart = mkChart(chartData)
             else
@@ -216,9 +217,13 @@
 				    dsList.push({"id":d.id,"name":d.name,"area":d.area/1000000,
                         "pop":d.population,
                         "bounds":d.bounds,"center":d.center,
-                        "means":d.means,"trees":dsTrees[d.id].length})
+                        "trees":dsTrees[d.id].length})
 					totalPop += parseInt(d.population)
 					totalArea += parseInt(d.area)
+					if (null == means){
+						means = d.means
+						means.n = districts.length
+					}
 				})
 			})
 			.then(function() {
@@ -236,8 +241,7 @@
 				s.add(option); 
 				// update info
 				let i = document.getElementById("topInfo")
-				i.innerHTML = "<h2>" + city + " " + totalPop + " Einwohner " + 
-				(totalArea/1000000.0).toFixed(2) + "km² Fläche " + totalTrees + " Bäume</h2>"
+				i.innerHTML = "<h2>" + city + "</h2>"
 			})
 		  .catch(function(err) {
 			// Error: response error, request timeout or runtime error
@@ -290,7 +294,6 @@ function updateChart(data)
               ['value', data.p, data.t,data.a]
         ]
     });
-    chart.config.title_text = data.h // "Kennzahlen des Stdadtteils"
 }
 
 // create a chart for the district
@@ -371,11 +374,29 @@ function mkChart(data){
             let text = "<table class='" + c.CLASS.tooltip + "'><tr><th colspan='2'>" + title + "</th></tr>"
             name = d[0].name
             let value = defaultValueFormat(d[0].value, d[0].ratio, d[0].id, d[0].index);
+			let absVal, totVal
+			switch (parseInt(d[0].index)){
+				case 0:
+					absVal = Math.round(value * means.pop)
+					totVal = Math.round(means.n * means.pop)
+					break
+				case 1:
+					absVal = Math.round(value * means.trees)
+					totVal = Math.round(means.n * means.trees)
+					break
+				case 2:
+					absVal = Math.round(value * means.area)
+					totVal = (means.n * means.area).toFixed(2)
+					break
+			}
             let bgcolor = color(d[0].id)
             text += "<tr class='" + c.CLASS.tooltipName + "-" + d[0].id + "'>";
-            text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>" + name + "</td>";
-            text += "<td class='value'>" + value + "</td>";
-            text += "</tr>";
+            text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>Relativ</td>";
+            text += "<td class='value'>" + value + "</td></tr>"
+			text += "<tr><td class='name'><span style='background-color:" + bgcolor + "'></span>Absolut</td>";
+            text += "<td class='value'>" + absVal + "</td></tr>"
+			text += "<tr><td class='name'><span style='background-color:" + bgcolor + "'></span>Gesamt</td>";
+            text += "<td class='value'>" + totVal + "</td></tr>"
             text + "</table>"
             return text
           }
