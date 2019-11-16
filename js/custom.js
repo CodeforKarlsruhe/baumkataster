@@ -20,21 +20,35 @@
     //var init = function() {	
     function init() {	
 		'use strict'
-		let w = window.innerWidth;
-		let h = window.innerHeight;
-		let m = document.getElementById("mapid")
-		m.style.width = Math.floor(w * .95) + "px"
-		m.style.height = Math.floor(h * .95) + "px"
-	    treeMap = L.map('mapid').setView(center, 13);
-        // use osm api. a bit slow .... but we don't have an api key yet
-        let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-	    let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-	    //var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
-	    let osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
-	    osm.addTo(treeMap);
-	    let l = document.getElementById("loading")
-	    l.style.display = "block"
-	    getTrees()
+        // disable sorry and turn on works. Do an initial fetch before creating the map element
+		fetch("/baumkataster/assets/fetch.json",{cache: "no-cache"})
+		  .then(function(response) {
+			return response.json();
+		  })
+		  .then(function(status) {
+			console.log("Fetch returned:",status.fetch);
+            document.getElementById("sorry").style.display="none"
+            document.getElementById("works").style.display="block"
+		    let w = window.innerWidth;
+		    let h = window.innerHeight;
+		    let m = document.getElementById("mapid")
+		    m.style.width = Math.floor(w * .95) + "px"
+		    m.style.height = Math.floor(h * .95) + "px"
+	        treeMap = L.map('mapid').setView(center, 13);
+            // use osm api. a bit slow .... but we don't have an api key yet
+            let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	        let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+	        //var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
+	        let osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
+	        osm.addTo(treeMap);
+	        let l = document.getElementById("loading")
+	        l.style.display = "block"
+	        getTrees()
+		  })
+		  .catch(function(err) {
+			// Error: response error, request timeout or runtime error
+			console.log('fetch error! ', err);
+		  })
     }
 
 
@@ -68,6 +82,7 @@
 		  .then(function(trees) {
 			console.log("Fetch completed");
 			console.log("Items: ",trees.length)
+            //
 			let i
 			for (i in trees){
 				let t = trees[i]
