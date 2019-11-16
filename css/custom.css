@@ -34,6 +34,26 @@
 	z-index:10000;
 }
 
+#chart {
+	position: fixed!important;
+    background:white;
+	top: 30%;
+	left: 1%;
+    width:20%;
+	display: block;
+	font-size:1em;
+	z-index:10000;
+    display:none;
+}
+.c3-grid line {
+  stroke: none;
+}
+
+.c3-axis-x > path.domain, .tick > line[x2="-6"] {
+  visibility: hidden;
+}
+
+
 /* popup info */
 .info {
 		/* this is inside the popup-content-wrapper **

@@ -16,7 +16,7 @@
 	var totalArea = 0
 	const maxZoom = 19
 
-        
+      
     //var init = function() {	
     function init() {	
 		'use strict'
@@ -166,9 +166,13 @@
 		// finally center map
 		if (0 == id){
 			treeMap.panTo(new L.LatLng(center[0],center[1]))
+            document.getElementById("chart").style.display = "none"
 		} else {
             console.log("Centering to id",id,dsList[id].center)
 			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
+            document.getElementById("chart").style.display = "block"
+            chart = mkChart(null)
+
 		}
 	}
 
@@ -233,7 +237,10 @@
 		if (null != currentMarkers) {
 			currentMarkers.clearLayers()
 		}
-		if (0 == i) return
+		if (0 == i) {
+            document.getElementById("chart").style.display = "none"
+            return
+        }
 		let l = document.getElementById("loading")
 		l.style.display = "block"
 		if (dsList.length + 1 != i) {
@@ -258,4 +265,55 @@
 	}
 
 
+// create a chart for the district
+function mkChart(data){
+    let chart = c3.generate({
+        bindto: '#chart',
+        size: {
+            height: 150
+        },
+        bar: {
+            width: 40
+        },
+        padding: {
+            left: 60
+        },
+        color: {
+            pattern: ['#FABF62', '#ACB6DD']
+        },
+        data: {
+            x: 'x',
+            columns:
+                [
+              ['x', 'Category1', 'Category2'],
+              ['value', 300, 400]
+              ],
+
+            type: 'bar',
+           
+            color: function(inColor, data) {
+                var colors = ['#FABF62', '#ACB6DD'];
+                if(data.index !== undefined) {
+                    return colors[data.index];
+                }
+
+                return inColor;
+            }
+        },
+        axis: {
+            rotated: true,
+            x: {
+                type: 'category'
+            }
+        },
+        tooltip: {
+            grouped: false
+        },
+        legend: {
+            show: false
+        }
+    });
+    return chart
+}	
+		
 
