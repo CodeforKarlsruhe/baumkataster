@@ -296,6 +296,8 @@ function updateChart(data)
               ['Relative', data.p, data.t,data.a]
         ]
     });
+    d3.select('#chart .c3-title').node().innerHTML = "Kennzahlen für " + data.h
+
 }
 
 // create a chart for the district
