@@ -18,6 +18,7 @@
 
     var chart = null // need the variable to update data
 	var means = null
+	var distId
 
       
     //var init = function() {	
@@ -179,11 +180,11 @@
             chartData.t = (dsList[id-1].trees / means.trees).toFixed(2)
             chartData.a = (dsList[id-1].area / means.area).toFixed(2)
             chartData.h = dsList[id-1].name
+            chartData.i = id
             //console.log(id,chartData)
             if (null == chart) 
-                chart = mkChart(chartData)
-            else
-                updateChart(chartData)
+                chart = mkChart(null) // create default
+            updateChart(chartData)
 
 		}
 	}
@@ -288,10 +289,11 @@
 function updateChart(data)
 {
     console.log("Update:",data)
+	distId = data.i // set global id for tooltip
     chart.load({
         columns:[
               ['x', 'Einwohner',"Bäume","Fläche"],
-              ['value', data.p, data.t,data.a]
+              ['Relative', data.p, data.t,data.a]
         ]
     });
 }
@@ -320,7 +322,7 @@ function mkChart(data){
             columns:
                 [
               ['x', 'Einwohner',"Bäume","Fläche"],
-              ['value', data.p, data.t,data.a]
+              ['Relative', 1,1,1]
               ],
 
             type: 'bar',
@@ -368,6 +370,7 @@ function mkChart(data){
             // see https://stackoverflow.com/questions/24754239/how-to-change-tooltip-content-in-c3js
             let c = this // get chart
             //console.log(c.config)
+			//console.log("tt: ",c.data)
             //console.log(defaultTitleFormat,defaultValueFormat)
             // we have only a single value 
             let title = defaultTitleFormat(d[0].x)
@@ -377,16 +380,16 @@ function mkChart(data){
 			let absVal, totVal
 			switch (parseInt(d[0].index)){
 				case 0:
-					absVal = Math.round(value * means.pop)
+					absVal = dsList[distId - 1].pop //Math.round(value * means.pop)
 					totVal = Math.round(means.n * means.pop)
 					break
 				case 1:
-					absVal = Math.round(value * means.trees)
+					absVal = dsList[distId - 1].trees
 					totVal = Math.round(means.n * means.trees)
 					break
 				case 2:
-					absVal = Math.round(value * means.area)
-					totVal = (means.n * means.area).toFixed(2)
+					absVal = dsList[distId - 1].area.toFixed(2) + "km²"
+					totVal = (means.n * means.area).toFixed(2) + "km²"
 					break
 			}
             let bgcolor = color(d[0].id)
