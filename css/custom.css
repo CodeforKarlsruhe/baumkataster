@@ -102,3 +102,25 @@ if unset, we can put windows at fixed  position
 	50% { opacity: 1 }
 }
 
+
+@media (max-width:600px) {
+    #chart {
+	    top: unset;
+        bottom:0;
+	    left: 1vw;
+        width:50%;  
+    	font-size:.6em;
+    }
+    #chart > c3-title {
+        font-size: .7em;
+    }
+    #topInfo {
+	    top: 2em;
+    }
+    #sel {
+	    top: 4.5em;
+    }
+
+}
+
+
