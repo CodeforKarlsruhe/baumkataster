@@ -58,13 +58,16 @@
 	z-index:10000;
     display:none;
 }
+
 .c3-grid line {
   stroke: none;
 }
 
+
 .c3-axis-x > path.domain, .tick > line[x2="-6"] {
   visibility: hidden;
 }
+
 
 
 /* popup info */

@@ -62,7 +62,7 @@
 		l.innerHTML = "Processes " + processed + " of " + total
 		if (processed === total) {
 			l.style.display = "none"
-			console.log(total + " trees added")
+			//console.log(total + " trees added")
 		}
 	}
 
@@ -99,7 +99,7 @@
 		  .then (function() {
 			dsTrees.forEach(function(d){
 				totalTrees += d.length
-				console.log(d[0][5],": ",d.length)
+				//console.log(d[0][5],": ",d.length)
 			})
 			// hide 
 			let l = document.getElementById("loading")
@@ -172,7 +172,7 @@
 			treeMap.panTo(new L.LatLng(center[0],center[1]))
             document.getElementById("chart").style.display = "none"
 		} else {
-            console.log("Centering to id",id,dsList[id].center)
+            // console.log("Centering to id",id,dsList[id].center)
 			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
             document.getElementById("chart").style.display = "block"
             let chartData = {}
@@ -288,7 +288,7 @@
 
 function updateChart(data)
 {
-    console.log("Update:",data)
+    //console.log("Update:",data)
 	distId = data.i // set global id for tooltip
     chart.load({
         columns:[
@@ -300,16 +300,20 @@ function updateChart(data)
 
 // create a chart for the district
 function mkChart(data){
-    console.log("init:",data)
+    //console.log("init:",data)
     let chart = c3.generate({
         bindto: '#chart',
         size: {
             height: 150
         },
+        margin: {
+            right: 20
+        },
         bar: {
             width: 20
         },
         padding: {
+            right: 20,
             left: 60
         },
         /*
@@ -345,6 +349,10 @@ function mkChart(data){
                 label: {
                     text: "Daten relativ zum Mittelwert",
                     position:'outer-center'
+                },
+                tick: {
+                    count: 5,
+                    format: function (y) { return y.toFixed(2); }
                 }
             }
         },
@@ -381,15 +389,15 @@ function mkChart(data){
 			switch (parseInt(d[0].index)){
 				case 0:
 					absVal = dsList[distId - 1].pop //Math.round(value * means.pop)
-					totVal = Math.round(means.n * means.pop)
+					totVal = totalPop
 					break
 				case 1:
 					absVal = dsList[distId - 1].trees
-					totVal = Math.round(means.n * means.trees)
+					totVal = totalTrees
 					break
 				case 2:
 					absVal = dsList[distId - 1].area.toFixed(2) + "km²"
-					totVal = (means.n * means.area).toFixed(2) + "km²"
+					totVal = (totalArea/1000000).toFixed(2) + "km²"
 					break
 			}
             let bgcolor = color(d[0].id)
@@ -408,7 +416,7 @@ function mkChart(data){
             show: false
         },
         title: {
-            text: "Kennzahlen des Stdadtteils"
+            text: "Kennzahlen des Stadtteils"
         }
   
     });
