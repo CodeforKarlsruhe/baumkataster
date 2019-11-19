@@ -116,11 +116,15 @@ if unset, we can put windows at fixed  position
     }
     #topInfo {
 	    top: 2em;
+        left:20%;
     }
     #sel {
 	    top: 4.5em;
+        left:20%;
     }
-
+    #works{
+	    margin-left:2vw;
+    }
 }
 
 
