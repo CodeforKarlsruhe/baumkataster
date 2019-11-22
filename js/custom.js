@@ -20,6 +20,7 @@
 	var means = null
 	var distId
 
+    var width, height // for checking later 
       
     //var init = function() {	
     function init() {	
@@ -35,6 +36,8 @@
             document.getElementById("works").style.display="block"
 		    let w = window.innerWidth;
 		    let h = window.innerHeight;
+            width = w
+            height = h
 		    let m = document.getElementById("mapid")
             if (m.style.width >600) 
     		    m.style.width = Math.floor(w * .95) + "px"
@@ -68,6 +71,28 @@
 			//console.log(total + " trees added")
 		}
 	}
+
+    // updateMapSize will regularily check for changed dimensions of the scree
+    // and will update the container and the map
+    function updateMapSize(){
+        // console.log("Check size")
+	    let w = window.innerWidth;
+	    let h = window.innerHeight;
+        if ((w != width) || (h != height)) {
+            // console.log("Update size:",w,h)
+            width = w
+            height = h
+		    let m = document.getElementById("mapid")
+            if (m.style.width >600) 
+    		    m.style.width = Math.floor(w * .95) + "px"
+            else
+    		    m.style.width = Math.floor(w * .92) + "px"
+		    m.style.height = Math.floor(h * .95) + "px"
+	        treeMap.invalidateSize()
+            treeMap.setView(center, 13);
+        }
+        setTimeout(function(){ updateMapSize()}, 500);
+    }
 
 	// Note: the reference examples uses 50k items provided in 2 files
 	// of 25k items each. Each file uses a separate markerList.
@@ -246,6 +271,8 @@
 				// update info
 				let i = document.getElementById("topInfo")
 				i.innerHTML = "<h2>" + city + "</h2>"
+                // call the size update function
+                updateMapSize()
 			})
 		  .catch(function(err) {
 			// Error: response error, request timeout or runtime error
