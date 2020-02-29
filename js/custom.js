@@ -152,7 +152,7 @@
 
 		//var markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar });
 		if (null == currentMarkers)
-			currentMarkers = L.markerClusterGroup({ disableClusteringAtZoom : maxZoom -1, spiderfyOnMaxZoom: false, chunkedLoading: true, chunkProgress: updateProgressBar });
+			currentMarkers = L.markerClusterGroup({ disableClusteringAtZoom : maxZoom -3, spiderfyOnMaxZoom: false, chunkedLoading: true, chunkProgress: updateProgressBar });
 		 
 		let markerList = [] // new Array(trees.length)
 		// using a preallocated array doesn't help as most time goes into addint the marker
