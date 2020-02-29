@@ -66,7 +66,9 @@ for t in enumerate(treesKa):
     # try to match
     treesKa[t[0]]["klam"] = "0" # default unset
     for ty in types:
-        d = textdistance.hamming.normalized_similarity(t[1]["name"], ty["name"])
+        # levenshtein takes longer, but gives better results
+        #d = textdistance.hamming.normalized_similarity(t[1]["name"], ty["name"])
+        d = textdistance.levenshtein.normalized_similarity(t[1]["name"], ty["name"])
         if d > .55:
             print("option: ",t[1]["name"],":",ty["name"])
             o += 1
