@@ -62,6 +62,7 @@ with open(df, "r", encoding='utf-8') as f:
     f.close()
 
 o = 0 #options
+treeCats = {} # category list
 for t in enumerate(treesKa):
     # try to match
     treesKa[t[0]]["klam"] = "0" # default unset
@@ -73,6 +74,7 @@ for t in enumerate(treesKa):
             print("option: ",t[1]["name"],":",ty["name"])
             o += 1
             treesKa[t[0]]["klam"] = ty["category"]
+            treeCats.update({t[1]["name"]:ty["category"]})
             break
 
 
@@ -82,6 +84,12 @@ print("Total: ",len(treesKa),", options: ",o)
 df = Path("treeTypesKlam.json")
 with open(df, "w", encoding='utf-8') as f:
     json.dump(treesKa,f)
+    f.close()
+
+# write categories
+df = Path("treeCats.json")
+with open(df, "w", encoding='utf-8') as f:
+    json.dump(treeCats,f)
     f.close()
 
 

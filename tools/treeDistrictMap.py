@@ -223,12 +223,26 @@ treeTypes.sort(key=typeKey)
 treeTypes.reverse() # put freqeunt trees in front
 print("Number of types:", len(treeTypes))
 
+try:
+    with open(Path("treeCats.json"),"r") as f:
+        treeCats = json.load(f)
+
+    for tt in enumerate(treeTypes):
+        if tt[1]["name"] in treeCats:
+            treeTypes[tt[0]]["klam"] = treeCats[tt[1]["name"]]
+        else:
+            treeTypes[tt[0]]["klam"] = "0"
+
+except:
+    print("No or invalid treeCats file")
+    sys.exit()
+
 
 tf = Path("treeTypes.json")
 with open(tf, "w", encoding='utf-8') as f:
     json.dump(treeTypes, f)
     f.close()
-print("Teetypes written to ", tf)
+print("Treetypes written to ", tf)
 
 
 #print("Types:", treeTypes, treeCounts)
@@ -295,9 +309,9 @@ for ti in range(len(pt)):
             t = []
             for tt in trees[ti]:
                 t.append(tt)
-            t.append(districts[di]["properties"]["Stadtteilname"])
             dn = int(districts[di]["properties"]["Stadtteilnummer"])
             t.append(dn)
+            t.append(districts[di]["properties"]["Stadtteilname"])
             if distTrees.get(dn) == None:
                 distTrees[dn] = 1
             else:
@@ -307,6 +321,12 @@ for ti in range(len(pt)):
                 t.append("")
             else:
                 t.append(u)
+            # check if we have the klam category in the types. latin name is in tt[3]
+            if trees[ti][3] in treeCats:
+                t.append(treeCats[trees[ti][3]])
+            else:
+                t.append("")
+            
             anTrees.append(t)
             break
 
@@ -371,6 +391,7 @@ for di in range(len(districts)):
         cc.append([ccc[1], ccc[0]])
     dd = {"id":d["properties"]["Stadtteilnummer"], "name":d["properties"]["Stadtteilname"]}
     dd["bounds"] = po[di]["bounds"]
+    dd["center"] = [(po[di]["bounds"][0]+po[di]["bounds"][2])/2,(po[di]["bounds"][1]+po[di]["bounds"][3])/2]
     dd["area"] = po[di]["area"]
     dd["population"] = pp[int(d["properties"]["Stadtteilnummer"])-1]["Wohnberechtigte"]
     dd["coordinates"] = cc

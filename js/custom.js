@@ -120,11 +120,12 @@
 				let t = trees[i]
 				let di = parseInt(t[4]) // district index
 				if (undefined == dsTrees[di]) dsTrees[di] = [] // create array if not exists
-				    dsTrees[di].push(t)
+				dsTrees[di].push(t)
 			}
 
 		  })
 		  .then (function() {
+            //console.log("processing dsTrees in getTrees:",dsTrees.length)
 			dsTrees.forEach(function(d){
 				totalTrees += d.length
 				//console.log(d[0][5],": ",d.length)
@@ -178,14 +179,41 @@
 				}			
 				// we can use markers or circles ...
 				//let marker = L.marker([t[0],t[1]],{"title":t[2]})
+                // with KLAM data we need a more complex color scheme
+                // 1 => mostly green, 2 => yellow, 3 => blue, 4 => red
+                let cat1, cat2, col
+                if (t[7] && t[7] > "" ) {
+                    cat1 = parseInt(t[7].split(".")[0])
+                    cat2 = parseInt(t[7].split(".")[1])
+                }
+                switch (cat1) {
+                    case 1:
+                        col = [0,200,0]
+                        break;
+                    case 2:
+                        col = [200,200,0]
+                        break;
+                    case 3:
+                        col = [0,0,200]
+                        break;
+                    case 4:
+                        col = [200,0,0]
+                        break;
+                }
+                let fc = "#"
+                for (let c in col) 
+                    fc += ("0" + Math.floor(col[c] / cat2).toString(16)).slice(-2)
+
+                
 				let marker = L.circle([t[0],t[1]], {
 				  color: "green",
-				  fillColor: (infoLink > "") ? "#0f0" : "#888",
+				  //fillColor: (infoLink > "") ? "#0f0" : "#888",
+				  fillColor: fc,
 				  fillOpacity: 0.5,
 				  radius: 3.0
 				})
 				let info = '<div class="info">'
-				info += t[2] + "<br>" + t[3] + "<br>" + t[1] + "<br>" + t[0]
+				info += t[2] + "<br>" + t[3] + "<br>" + t[1] + "<br>" + t[0] + "<br>KLAM: " + t[7] 
 				info += infoLink + "</div>"
 				marker.bindPopup(info);
 				markerList.push(marker);
@@ -200,7 +228,9 @@
 			treeMap.panTo(new L.LatLng(center[0],center[1]))
             document.getElementById("chart").style.display = "none"
 		} else {
-            // console.log("Centering to id",id,dsList[id].center)
+            console.log("Centering to id",id,dsList[id].center)
+            console.log("DsList:",dsList)
+            
 			treeMap.panTo(new L.LatLng(dsList[id].center[1],dsList[id].center[0]))   //dsTrees[id][0][0],dsTrees[id][0][1]))
             document.getElementById("chart").style.display = "block"
             let chartData = {}
@@ -256,7 +286,6 @@
 				})
 			})
 			.then(function() {
-				//console.log(dsList)
 				let s = document.getElementById("select")
 				let option = document.createElement("option");
 				s.add(option); 
