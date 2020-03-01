@@ -206,11 +206,12 @@
 
                 
 				let marker = L.circle([t[0],t[1]], {
-				  color: "green",
+				  color: fc, // "green",  // use same color for border
+                  weight: 2, // width of line
 				  //fillColor: (infoLink > "") ? "#0f0" : "#888",
 				  fillColor: fc,
 				  fillOpacity: 0.5,
-				  radius: 3.0
+				  radius: 4.0
 				})
 				let info = '<div class="info">'
 				info += t[2] + "<br>" + t[3] + "<br>" + t[1] + "<br>" + t[0] + "<br>KLAM: " + t[7] 
