@@ -20,7 +20,8 @@ Die Daten des Karlsruher Baumkatatsters enthalten Standort und Namen der städti
 Alter, Größe oder eine eindeutige ID sind nicht verfügbar. Die Datei kann über das Transparenzportal unter [https://transparenz.karlsruhe.de/dataset/fachplane-baumkataster](https://transparenz.karlsruhe.de/dataset/fachplane-baumkataster) abgerufen werden. Nach dem Laden der Karten kann ein einzelner Stadtteil zur Ansicht ausgewählt werden (Achtung, die Auswahl "Alle" braucht sehr viel Rechenzeit, da alle 85000 Bäume verarbeitet werden müssen).
 
 Zur Darstellung werden weitere Daten des Transparenzportals verwendet:
-  * [Bevölkerungsdaten](https://transparenz.karlsruhe.de/dataset/bevolkerung/resource/71ef348f-0f5b-46a0-8250-e87aae9f91bd)
+
+  * [Bevölkerungsdaten](https://transparenz.karlsruhe.de/dataset/bevolkerung/resource/71ef348f-0f5b-46a0-8250-e87aae9f91bd) 
   * [Stadtteile](https://transparenz.karlsruhe.de/dataset/landtagswahl-2016/resource/a16d5625-4407-427b-9bc2-b5ce738d283c)
 
 ## Verarbeitung
