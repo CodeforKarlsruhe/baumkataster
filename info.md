@@ -28,7 +28,7 @@ Zur Darstellung werden weitere Daten des Transparenzportals verwendet:
 In einem Vorverarbeitungsschritt werden die Bäume den einzelnen Stadtteilen zugeordnet und es können weitere 
 Daten hinzugefügt werden, zum Beispiel die Klassifizierung nach [KLAM](https://www.die-gruene-stadt.de/klimaartenmatrix-stadtbaeume.pdfx) oder ein Link zu [Wikidata](https://de.wikipedia.org/wiki/Baum).
 
-Die KLAM Klassifizierung wird bei den einzelnen Bäumen farbkodiert dargestellt, der vordere Index ergibt Grün, Gelb, Blau, Rot für 1,2,3,4. Der hintere Index liefert die Helligkeit (1: hell - 4: dunkel).
+Die KLAM Klassifizierung wird bei den einzelnen Bäumen farbkodiert dargestellt, der vordere Index ergibt Grün, Gelb, Blau, Rot für 1,2,3,4. Der hintere Index liefert die Helligkeit (1: hell - 4: dunkel). Bäume ohne KLAM Klasse sind grau.
 
 In der Overlay-Grafik werden Kennzahlen des Stadtteils Bevölkerung, Fläche und Baumzahl angezeigt, absolut und in Relation zum Mittelwert.
 
