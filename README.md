@@ -7,3 +7,7 @@ Visualize communal trees
 Python3 program to compile tree and districts files from
 data source
 
+# Note
+Baumkataster has tree groups. check for field "BAUMGRUPPE".
+Also read LFDBNR and LFDNR
+
