@@ -34,6 +34,8 @@ from area import area
 import csv
 import json
 import geojson
+# new 20210416. most stuff is still without pandas
+import pandas as pd
 
 # currently we use stored files, but we can also try to load the data sources directly like so
 # data sources:
@@ -187,9 +189,10 @@ for tree in t:
     try:
         lt = tree["geometry"]["coordinates"][1]
         lg = tree["geometry"]["coordinates"][0]
-        pd =  tree["properties"]["ARTDEUT"]
+        pdt =  tree["properties"]["ARTDEUT"]
         pl =  tree["properties"]["ARTLAT"]
-        trees.append((lt, lg, pd, pl))
+        pg = tree["properties"]["BAUMGRUPPE"] != "Einzelbaum"
+        trees.append((lt, lg, pdt, pl,pg))
         if not pl in types:
             types.append(pl) # helpr array to make indexing simpler
             treeTypes.append({"name":pl, "count":1})
@@ -214,7 +217,7 @@ if tf.is_file():
     for t in treeUrls:
         urlDict[t["name"]] = t["url"]
     print("Urls read")
-    #print("urls: ", urlDict)
+    print("urls: ", urlDict)
 
 # sort trees by count
 def typeKey(type):
@@ -307,16 +310,18 @@ for ti in range(len(pt)):
     for di in range (len(po)):
         if pt[ti].within(po[di]["polygon"]):
             t = []
-            for tt in trees[ti]:
+            for tt in trees[ti]: # iterate over tree field
                 t.append(tt)
+            t.append(districts[di]["properties"]["Stadtteilname"])
             dn = int(districts[di]["properties"]["Stadtteilnummer"])
             t.append(dn)
-            t.append(districts[di]["properties"]["Stadtteilname"])
             if distTrees.get(dn) == None:
                 distTrees[dn] = 1
             else:
                 distTrees[dn] += 1
-            u = urlDict.get(tt) # try to read url. name is already in last tt
+            # we have the baumgruppe boolean as last field now
+            # need to load explicitly ..
+            u = urlDict.get(trees[ti][3]) # try to read url. name is already in last tt
             if u == None:
                 t.append("")
             else:
@@ -346,24 +351,15 @@ print("Annotated trees saved to ", af)
 
 
 # read bevölkerung
-pp = []
-bf = Path("bevolkerung-wohnberechtigte-bevolkerung.csv")
-if bf.is_file():
-    print("Poluation file exists")
-    with open(bf, newline='', encoding='utf-8') as f:
-        # create reader
-        r = csv.DictReader(f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        id = 1  # assign the id as it is not in the file
-        # might be risky if order doesnÄt match id sequence
-        for row in r:
-            if row["Jahr"] == "2018":
-                row["id"] = id
-                id += 1
-                pp.append(row)
-                globs["pop"] += int(row["Wohnberechtigte"])
-        f.close()
-else:
-    print("No population file")
+bevUrl = "https://transparenz.karlsruhe.de/dataset/74561f6a-4783-4d70-b86a-008deec09441/resource/71ef348f-0f5b-46a0-8250-e87aae9f91bd/download/bevolkerung-wohnberechtigte-bevolkerung.csv"
+try:
+    bev = pd.read_csv(bevUrl)
+    bev = bev[bev.Jahr == 2020]
+    bev.reset_index(drop=True,inplace=True)
+    bev.index += 1
+    globs["pop"] = int(bev.Wohnberechtigte.sum())
+except:
+    print("Reading population failed")
     sys.exit()
 
 # metrics: population/km² [100000], tree/km² [1000], population/tree
@@ -393,7 +389,8 @@ for di in range(len(districts)):
     dd["bounds"] = po[di]["bounds"]
     dd["center"] = [(po[di]["bounds"][0]+po[di]["bounds"][2])/2,(po[di]["bounds"][1]+po[di]["bounds"][3])/2]
     dd["area"] = po[di]["area"]
-    dd["population"] = pp[int(d["properties"]["Stadtteilnummer"])-1]["Wohnberechtigte"]
+    dd["population"] = int(bev.loc[int(d["properties"]["Stadtteilnummer"])]["Wohnberechtigte"])
+    ## dd["population"] = pp[int(d["properties"]["Stadtteilnummer"])-1]["Wohnberechtigte"]
     dd["coordinates"] = cc
     dd["trees"] = distTrees[int(d["properties"]["Stadtteilnummer"])]
     dd["means"] = means
