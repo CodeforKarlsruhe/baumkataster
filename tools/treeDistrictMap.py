@@ -303,6 +303,7 @@ print("Created ", len(po), " polygons")
 print("Sorting trees to districts ...")
 #annotated tree list
 anTrees = []
+misTrees = []
 # also computer trees per districts
 distTrees = dict()
 # for every point check in which district it is
@@ -310,11 +311,11 @@ for ti in range(len(pt)):
     for di in range (len(po)):
         if pt[ti].within(po[di]["polygon"]):
             t = []
-            for tt in trees[ti]: # iterate over tree field
+            for tt in trees[ti][:4]: # iterate over tree fields, leave out baumgruppe
                 t.append(tt)
-            t.append(districts[di]["properties"]["Stadtteilname"])
             dn = int(districts[di]["properties"]["Stadtteilnummer"])
             t.append(dn)
+            t.append(districts[di]["properties"]["Stadtteilname"])
             if distTrees.get(dn) == None:
                 distTrees[dn] = 1
             else:
@@ -335,6 +336,9 @@ for ti in range(len(pt)):
             anTrees.append(t)
             break
 
+        elif di == len(po)-1:
+            #print("Tree ",ti," not on map: ",pt[ti])
+            misTrees.append(t)
 
 # function to sort trees by district number (item 4)
 def districtKey(item):
@@ -348,6 +352,13 @@ with open(af, "w", encoding='utf-8') as f:
     json.dump(anTrees, f)
     f.close()
 print("Annotated trees saved to ", af)
+
+# write missing tree file
+mf = Path("trees-missing.json")
+with open(mf, "w", encoding='utf-8') as f:
+    json.dump(misTrees, f)
+    f.close()
+print(len(misTrees)," missing trees saved to ", af)
 
 
 # read bevölkerung
