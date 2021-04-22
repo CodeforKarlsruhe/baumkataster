@@ -318,6 +318,8 @@ def pt2district(points, offset = False):
     # for every point check in which district it is
     misPoints = []
     misTrees = []
+    FX = 0.0
+    FY = 0.0
     for ti in range(len(points)):
         for di in range (len(po)):
             pnt = points[ti]
@@ -325,7 +327,7 @@ def pt2district(points, offset = False):
                 # correct point coordinates towards center
                 dx = pnt.x - CENTER["lon"]
                 dy = pnt.y - CENTER["lat"]
-                pnt = Point((pnt.x - .4 * dx,pnt.y - .4 * dy))
+                pnt = Point((pnt.x - FX * dx,pnt.y - FY * dy))
                     
             if pnt.within(po[di]["polygon"]):
                 t = []
@@ -334,6 +336,8 @@ def pt2district(points, offset = False):
                 dn = int(districts[di]["properties"]["Stadtteilnummer"])
                 t.append(dn)
                 t.append(districts[di]["properties"]["Stadtteilname"])
+                if offset:
+                    print("Located at ",dn)
                 if distTrees.get(dn) == None:
                     distTrees[dn] = 1
                 else:
