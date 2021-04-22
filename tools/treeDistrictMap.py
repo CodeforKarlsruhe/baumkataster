@@ -37,6 +37,9 @@ import geojson
 # new 20210416. most stuff is still without pandas
 import pandas as pd
 
+# KA Center
+CENTER = {"lat":49.00923, "lon":8.40391}
+
 # currently we use stored files, but we can also try to load the data sources directly like so
 # data sources:
 # karlsruhe election districts :
@@ -303,42 +306,65 @@ print("Created ", len(po), " polygons")
 print("Sorting trees to districts ...")
 #annotated tree list
 anTrees = []
-misTrees = []
+#misTrees = []
+#misPoints = []
 # also computer trees per districts
 distTrees = dict()
-# for every point check in which district it is
-for ti in range(len(pt)):
-    for di in range (len(po)):
-        if pt[ti].within(po[di]["polygon"]):
-            t = []
-            for tt in trees[ti][:4]: # iterate over tree fields, leave out baumgruppe
-                t.append(tt)
-            dn = int(districts[di]["properties"]["Stadtteilnummer"])
-            t.append(dn)
-            t.append(districts[di]["properties"]["Stadtteilname"])
-            if distTrees.get(dn) == None:
-                distTrees[dn] = 1
-            else:
-                distTrees[dn] += 1
-            # we have the baumgruppe boolean as last field now
-            # need to load explicitly ..
-            u = urlDict.get(trees[ti][3]) # try to read url. name is already in last tt
-            if u == None:
-                t.append("")
-            else:
-                t.append(u)
-            # check if we have the klam category in the types. latin name is in tt[3]
-            if trees[ti][3] in treeCats:
-                t.append(treeCats[trees[ti][3]])
-            else:
-                t.append("")
-            
-            anTrees.append(t)
-            break
 
-        elif di == len(po)-1:
-            #print("Tree ",ti," not on map: ",pt[ti])
-            misTrees.append(t)
+def pt2district(points, offset = False):
+    # for every point check in which district it is
+    misPoints = []
+    misTrees = []
+    for ti in range(len(points)):
+        for di in range (len(po)):
+            pnt = points[ti]
+            if offset:
+                # correct point coordinates towards center
+                dx = pnt.x - CENTER["lon"]
+                dy = pnt.y - CENTER["lat"]
+                pnt = Point((pnt.x - .4 * dx,pnt.y - .4 * dy))
+                    
+            if pnt.within(po[di]["polygon"]):
+                t = []
+                for tt in trees[ti][:4]: # iterate over tree fields, leave out baumgruppe
+                    t.append(tt)
+                dn = int(districts[di]["properties"]["Stadtteilnummer"])
+                t.append(dn)
+                t.append(districts[di]["properties"]["Stadtteilname"])
+                if distTrees.get(dn) == None:
+                    distTrees[dn] = 1
+                else:
+                    distTrees[dn] += 1
+                # we have the baumgruppe boolean as last field now
+                # need to load explicitly ..
+                u = urlDict.get(trees[ti][3]) # try to read url. name is already in last tt
+                if u == None:
+                    t.append("")
+                else:
+                    t.append(u)
+                # check if we have the klam category in the types. latin name is in tt[3]
+                if trees[ti][3] in treeCats:
+                    t.append(treeCats[trees[ti][3]])
+                else:
+                    t.append("")
+                
+                anTrees.append(t)
+                break
+
+            elif di == len(po)-1:
+                #print("Point ",ti," not on map: ",points[ti])
+                misPoints.append(pt[ti])
+
+    return misPoints
+
+misPoints = pt2district(pt)
+print("Missed points 1:", len(misPoints))
+
+if len(misPoints) > 0:
+    misPoints = pt2district(misPoints,True)
+
+print("Missed points 2:", len(misPoints))
+    
 
 # function to sort trees by district number (item 4)
 def districtKey(item):
@@ -352,13 +378,6 @@ with open(af, "w", encoding='utf-8') as f:
     json.dump(anTrees, f)
     f.close()
 print("Annotated trees saved to ", af)
-
-# write missing tree file
-mf = Path("trees-missing.json")
-with open(mf, "w", encoding='utf-8') as f:
-    json.dump(misTrees, f)
-    f.close()
-print(len(misTrees)," missing trees saved to ", af)
 
 
 # read bevölkerung
