@@ -162,6 +162,9 @@ def loadElectRegions(file):
 
 #################################
 
+# URL access can be slow due to server issues
+# refresh file only using readKataster.py
+# then use local copy ...
 # open original baumkataster file
 bf = Path("baum-ka.json")
 if bf.is_file():

@@ -49,4 +49,5 @@ singles = b.loc[b["BAUMGRUPPE"] == "Einzelbaum"]
 
 print("Groups: ", len(groups))
 print("Singles: ", len(singles))
+print("Total: ", len(singles)+len(groups))
 
