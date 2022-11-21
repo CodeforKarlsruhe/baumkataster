@@ -46,7 +46,7 @@
 		    m.style.height = Math.floor(h * .95) + "px"
 	        treeMap = L.map('mapid').setView(center, 13);
             // use osm api. a bit slow .... but we don't have an api key yet
-            let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            let osmUrl='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 	        let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
 	        //var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 30, attribution: osmAttrib});	
 	        let osm = new L.TileLayer(osmUrl, {	maxZoom: maxZoom, attribution: osmAttrib});	
