@@ -29,7 +29,9 @@ import geopandas as gp
 baumfile = "baumfile.json"
 baumtable = "baumtable.csv"
 
-b = gp.read_file("https://geoportal.karlsruhe.de/server/rest/services/Fachplaene/Baumkataster/MapServer/1/query?where=ARTDEUT+IS+NOT+NULL&outFields=ARTDEUT%2CARTLAT%2CBAUMGRUPPE%2CLFDNR%2CLFDBNR&returnGeometry=true&f=geojson")
+# new 2024
+url = "https://geoportal.karlsruhe.de/server/rest/services/Fachplaene/Baumkataster/MapServer/1/query?where=STADTTEIL+IS+NOT+NULL&outFields=LFDBNR%2CARTDEUT%2CARTLAT%2CBAUMART_ALLGEMEIN%2CBAUMGRUPPE%2CSTADTTEIL&returnGeometry=true&f=geojson"
+b = gp.read_file(url)
 
 # separate points into x,y
 b["X"] = b["geometry"].x

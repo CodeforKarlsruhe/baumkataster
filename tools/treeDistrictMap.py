@@ -389,9 +389,10 @@ print("Annotated trees saved to ", af)
 
 # read bevölkerung
 bevUrl = "https://transparenz.karlsruhe.de/dataset/74561f6a-4783-4d70-b86a-008deec09441/resource/71ef348f-0f5b-46a0-8250-e87aae9f91bd/download/bevolkerung-wohnberechtigte-bevolkerung.csv"
+
 try:
     bev = pd.read_csv(bevUrl)
-    bev = bev[bev.Jahr == 2020]
+    bev = bev[bev.Jahr == 2021]
     bev.reset_index(drop=True,inplace=True)
     bev.index += 1
     globs["pop"] = int(bev.Wohnberechtigte.sum())
