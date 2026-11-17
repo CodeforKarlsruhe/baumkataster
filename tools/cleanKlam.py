@@ -67,6 +67,9 @@ for t in enumerate(treesKa):
     # try to match
     treesKa[t[0]]["klam"] = "0" # default unset
     for ty in types:
+        # skip trees without a latin name (cannot be matched)
+        if ty["name"] is None or t[1]["name"] is None:
+            continue
         # levenshtein takes longer, but gives better results
         #d = textdistance.hamming.normalized_similarity(t[1]["name"], ty["name"])
         d = textdistance.levenshtein.normalized_similarity(t[1]["name"], ty["name"])

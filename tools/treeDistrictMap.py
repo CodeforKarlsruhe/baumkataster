@@ -232,16 +232,11 @@ treeTypes.sort(key=typeKey)
 treeTypes.reverse() # put freqeunt trees in front
 print("Number of types:", len(treeTypes))
 
-tf = Path("treeTypes.json")
-with open(tf, "w", encoding='utf-8') as f:
-    json.dump(treeTypes, f)
-    f.close()
-print("Treetypes written to ", tf)
-
 # treeCats.json is created by cleanKlam.py from treeTypes.json.
-# on the very first run it does not exist yet: the treeTypes.json file
-# has been written above, so run cleanKlam.py and then start this
-# script again to continue with the full annotation.
+# on the very first run it does not exist yet: write treeTypes.json
+# (without klam) and stop, so cleanKlam.py can create treeCats.json;
+# then start this script again to continue with the full annotation.
+treeCats = None
 try:
     with open(Path("treeCats.json"),"r") as f:
         treeCats = json.load(f)
@@ -255,6 +250,16 @@ try:
 except:
     print("No or invalid treeCats file")
     print("Run cleanKlam.py to create it, then start this script again.")
+
+# write updated trees types (after the klam merge, so the categories
+# are persisted in the file)
+tf = Path("treeTypes.json")
+with open(tf, "w", encoding='utf-8') as f:
+    json.dump(treeTypes, f)
+    f.close()
+print("Treetypes written to ", tf)
+
+if not treeCats:
     sys.exit(1)
 
 

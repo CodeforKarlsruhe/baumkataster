@@ -14,6 +14,7 @@
 	var totalPop = 0
 	var totalTrees = 0
 	var totalArea = 0
+	var katasterTotal = null // total trees in the kataster (from fetch.json build metadata)
 	const maxZoom = 19
 
     var chart = null // need the variable to update data
@@ -32,6 +33,7 @@
 		  })
 		  .then(function(status) {
 			console.log("Fetch returned:",status.fetch);
+			katasterTotal = status.katasterTrees || null
             document.getElementById("sorry").style.display="none"
             document.getElementById("works").style.display="block"
 		    let w = window.innerWidth;
@@ -132,6 +134,7 @@
 				totalTrees += d.length
 				//console.log(d[0][5],": ",d.length)
 			})
+			console.log("Trees loaded: ",totalTrees)
 			// hide 
 			let l = document.getElementById("loading")
 			l.style.display = "none"
@@ -305,6 +308,35 @@
 				i.innerHTML = "<h2>" + city + "</h2>"
                 // call the size update function
                 updateMapSize()
+                // summary popup after all trees (and districts) are loaded.
+                // all numbers are computed from the loaded trees file
+                // (dsTrees), not from precomputed values in the
+                // districts file. katasterTotal is the build-time total
+                // from fetch.json, shown for comparison.
+                let popupHtml = "<div class='info'><b>" + city + "</b><br>"
+                if (katasterTotal) {
+                    popupHtml += katasterTotal.toLocaleString("de-DE") +
+                        " Bäume im Kataster<br>" +
+                        totalTrees.toLocaleString("de-DE") + " geladen (" +
+                        (katasterTotal - totalTrees).toLocaleString("de-DE") +
+                        " außerhalb der Stadtteile)<br><hr>"
+                } else {
+                    popupHtml += totalTrees.toLocaleString("de-DE") +
+                        " Bäume geladen<br><hr>"
+                }
+                dsTrees.forEach(function(trees, id) {
+                    let name = "Bezirk " + id
+                    for (let d of dsList) {
+                        if (d.id == id) { name = d.name; break }
+                    }
+                    popupHtml += name + ": " +
+                        trees.length.toLocaleString("de-DE") + " Bäume<br>"
+                })
+                popupHtml += "</div>"
+                L.popup({ maxHeight: 300, maxWidth: 250 })
+                    .setLatLng(treeMap.getCenter())
+                    .setContent(popupHtml)
+                    .openOn(treeMap)
 			})
 		  .catch(function(err) {
 			// Error: response error, request timeout or runtime error
